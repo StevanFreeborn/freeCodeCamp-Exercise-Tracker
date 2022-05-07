@@ -118,7 +118,7 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
 
         // if no date is passed use current date
         // otherwise construct new date from passed value
-        let date = (req.body.date == '') ? new Date() : new Date(req.body.date);
+        let date = (req.body.date == '') ? new Date().toDateString() : new Date(req.body.date).toDateString();
 
         // if date is invalid date respond with error
         if (date == 'Invalid Date') return res.json({
@@ -164,7 +164,7 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
 
 APP.get('/api/users/:_id/logs', (req, res) => {
 
-
+    req.query.
 
 });
 
