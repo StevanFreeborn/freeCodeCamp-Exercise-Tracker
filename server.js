@@ -5,7 +5,6 @@ const EXPRESS = require('express');
 const BODYPARSER = require('body-parser');
 const CORS = require('cors');
 const MONGOOSE = require('mongoose');
-const { append } = require('express/lib/response');
 
 const APP = EXPRESS();
 
