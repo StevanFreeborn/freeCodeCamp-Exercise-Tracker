@@ -8,12 +8,16 @@ const MONGOOSE = require('mongoose');
 
 const APP = EXPRESS();
 
+// enable cors
 APP.use(CORS());
 
+// server static files from public directory
 APP.use(EXPRESS.static('public'));
 
+// middleware for parsing form body
 APP.use(BODYPARSER.urlencoded({extended: false}));
 
+// connect to mongodb
 MONGOOSE.connect(
     process.env.MONGO_URI,
     {
@@ -26,12 +30,14 @@ MONGOOSE.connect(
 
 MONGOOSE.connection.on('error', err => console.log(err));
 
+// build user schema and model
 const USERSCHEMA = MONGOOSE.Schema({
     username: { type: String, required: true }
 });
 
 const USER = MONGOOSE.model('user', USERSCHEMA);
 
+// build exercise schema and model
 const EXERCISESCHEMA = MONGOOSE.Schema({
     userId: { type: String, required: true },
     description: { type: String, required: true },
@@ -40,6 +46,8 @@ const EXERCISESCHEMA = MONGOOSE.Schema({
 });
 
 const EXERCISE = MONGOOSE.model('exercise', EXERCISESCHEMA);
+
+// endpoints
 
 APP.get('/', (req, res) => {
 
@@ -95,7 +103,6 @@ APP.get('/api/users', (req, res) => {
     });
 
 });
-
 
 APP.post('/api/users/:_id/exercises', (req, res) => {
 
@@ -204,7 +211,7 @@ APP.get('/api/users/:_id/logs',  async (req, res) => {
 
         // if date value parsed add it to the date filter object
         dateFilter.$lte = to;
-        
+
     }
 
     // find user by passed id value
@@ -261,7 +268,6 @@ APP.get('/api/users/:_id/logs',  async (req, res) => {
     })
 
 });
-
 
 const LISTENER = APP.listen(process.env.PORT || 3000, () => {
     console.log(`Listening on port ${LISTENER.address().port}`);
