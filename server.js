@@ -162,46 +162,103 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
 
 });
 
-APP.get('/api/users/:_id/logs', (req, res) => {
+APP.get('/api/users/:_id/logs',  async (req, res) => {
 
+    // get userId from path
     let userId = req.params._id;
 
-    USER.findById(userId, (err, user) => {
+    // get filter values from query string
+    let from = req.query.from;
+    let to = req.query.to;
+    let limit = req.query.limit;
 
-        // TODO: implement from, to, and limit query parameters
+    // empty object to be used as date filter
+    let dateFilter = {};
+
+    // check to see if a from value was passed
+    if (from) {
+
+        // if from value passed parse to date
+        from = new Date(from).toDateString();
+
+        // if value can't be parsed to date return error
+        if (from == 'Invalid Date') return res.json({
+            error: "from query value is not a valid date. Suggested format is yyyy-mm-dd"
+        })
+
+        // if date value parsed add it to date filter object
+        dateFilter.$gte = from;
+
+    }
+
+    // check to see if a to value was passed
+    if (to) {
+
+        // if to value passed parse to date
+        to = new Date(to).toDateString();
+
+        // if value can't be parsed to date return error
+        if (to == 'Invalid Date') return res.json({
+            error: "to query value is not a valid date. Suggested format is yyyy-mm-dd"
+        })
+
+        // if date value parsed add it to the date filter object
+        dateFilter.$lte = to;
+        
+    }
+
+    // find user by passed id value
+    let user = await USER.findById(userId).exec().catch(err => {
 
         if (err) return res.json({
             error: 'Could not find user'
         });
 
-        let filter = {
-            userId: user._id
-        }
+    });
 
-        EXERCISE.find(filter, (err, exercises) => {
-            
-            if (err) return res.json({
-                error: "Could not find exercises for user"
-            })
+    // filter object to find exercises
+    let filter = {
+        userId: user._id
+    };
 
-            let log = exercises.map(exercise => {
-                return {
-                    description: exercise.description,
-                    duration: exercise.duration,
-                    date: exercise.date.toDateString()
-                }
-            });
+    // check to see if the date filter object has a from or to criteria
+    // if it has either include it in the filter object to filter
+    // the returned exercises based on from and/or to values passed
+    if (dateFilter.hasOwnProperty('$gte') || dateFilter.hasOwnProperty('$lte')) {
 
-            return res.json({
-                username: user.username,
-                count: exercises.length,
-                _id: user._id,
-                log: log
-            })
+        filter.date = dateFilter;
 
+    }
+
+    // get exercises for user based on filter criteria and limit
+    let exercises = await EXERCISE.find(filter).limit(limit).exec().catch(err => {
+
+        if (err) return res.json({ 
+            error: 'Could not find exercises for user'
         });
 
     });
+
+    // map over the returned exercises and
+    // create a log array of objects with the
+    // expected response structure
+    let log = exercises.map(exercise => {
+
+        return {
+            description: exercise.description,
+            duration: exercise.duration,
+            date: exercise.date.toDateString()
+        }
+
+    });
+
+    // return expected response.
+    return res.json({
+        username: user.username,
+        count: exercises.length,
+        _id: user._id,
+        log: log
+    })
 
 });
 
