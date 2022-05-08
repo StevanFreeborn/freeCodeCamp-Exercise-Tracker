@@ -5,8 +5,6 @@ const EXPRESS = require('express');
 const BODYPARSER = require('body-parser');
 const CORS = require('cors');
 const MONGOOSE = require('mongoose');
-const { append } = require('express/lib/response');
-const { path } = require('express/lib/application');
 
 const APP = EXPRESS();
 
@@ -57,12 +55,12 @@ APP.post('/api/users', (req, res) => {
     USER.findOne({username: username}, (err, document) => {
         
         if (err) return res.json({
-            error: "Could not create a new user"
+            error: 'Could not create a new user'
         });
 
         // if user already exists return error
         if (document != null) return res.json({
-            error: "User already exists"
+            error: 'User already exists'
         });
 
         // create new user
@@ -72,7 +70,7 @@ APP.post('/api/users', (req, res) => {
         user.save((err) => {
             
             if (err) return res.json({
-                error: "Could not create a new user"
+                error: 'Could not create a new user'
             });
 
             // return new user as JSON object
@@ -89,7 +87,7 @@ APP.get('/api/users', (req, res) => {
     USER.find({}, (err, documents) => {
 
         if (err || documents == null) return res.json({
-            error: "Could not find users"
+            error: 'Could not find users'
         });
 
         return res.json(documents);
@@ -108,7 +106,7 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
         
         // if no user found return error
         if (err) return res.json({
-            error: "Could not find user"
+            error: 'Could not find user'
         });
 
         let description = req.body.description;
@@ -118,7 +116,9 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
 
         // if no date is passed use current date
         // otherwise construct new date from passed value
-        let date = (req.body.date == '') ? new Date().toDateString() : new Date(req.body.date).toDateString();
+        let date = (req.body.date == '') ? 
+        new Date().toDateString() : 
+        new Date(req.body.date).toDateString();
 
         // if date is invalid date respond with error
         if (date == 'Invalid Date') return res.json({
@@ -143,7 +143,7 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
             
             // if problem saving return error
             if (err) return res.json({
-                error: "Could not log exercise.",
+                error: 'Could not log exercise.',
                 message: err.message
             });
 
@@ -164,7 +164,44 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
 
 APP.get('/api/users/:_id/logs', (req, res) => {
 
-    req.query.
+    let userId = req.params._id;
+
+    USER.findById(userId, (err, user) => {
+
+        // TODO: implement from, to, and limit query parameters
+
+        if (err) return res.json({
+            error: 'Could not find user'
+        });
+
+        let filter = {
+            userId: user._id
+        }
+
+        EXERCISE.find(filter, (err, exercises) => {
+            
+            if (err) return res.json({
+                error: "Could not find exercises for user"
+            })
+
+            let log = exercises.map(exercise => {
+                return {
+                    description: exercise.description,
+                    duration: exercise.duration,
+                    date: exercise.date.toDateString()
+                }
+            });
+
+            return res.json({
+                username: user.username,
+                count: exercises.length,
+                _id: user._id,
+                log: log
+            })
+
+        });
+
+    });
 
 });
 
