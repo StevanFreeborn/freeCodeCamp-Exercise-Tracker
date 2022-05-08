@@ -63,12 +63,12 @@ APP.post('/api/users', (req, res) => {
     // check if user with username already exists
     USER.findOne({username: username}, (err, document) => {
         
-        if (err) return res.json({
+        if (err) return res.status(500).json({
             error: 'Could not create a new user'
         });
 
         // if user already exists return error
-        if (document != null) return res.json({
+        if (document != null) return res.status(400).json({
             error: 'User already exists'
         });
 
@@ -78,12 +78,12 @@ APP.post('/api/users', (req, res) => {
         // save new user
         user.save((err) => {
             
-            if (err) return res.json({
+            if (err) return res.status(500).json({
                 error: 'Could not create a new user'
             });
 
             // return new user as JSON object
-            return res.json(user);
+            return res.status(201).json(user);
 
         });
 
@@ -95,11 +95,15 @@ APP.get('/api/users', (req, res) => {
 
     USER.find({}, (err, documents) => {
 
-        if (err || documents == null) return res.json({
+        if (err) return res.status(500).json({
             error: 'Could not find users'
         });
 
-        return res.json(documents);
+        if (documents == null) return res.status(404).json({
+            error: 'No users found'
+        });
+
+        return res.status(200).json(documents);
 
     });
 
@@ -112,10 +116,14 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
     // find user based on id passed
     USER.findById(userId, (err, user) => {
         
-        // if no user found return error
-        if (err) return res.json({
+        if (err) return res.status(500).json({
             error: 'Could not find user'
         });
+
+        // if no user found return error
+        if (user == null) return res.status(404).json({
+            error: 'No user found'
+        })
 
         let description = req.body.description;
 
@@ -128,15 +136,13 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
         new Date().toDateString() : 
         new Date(req.body.date).toDateString();
 
-        console.log(req.body.date);
-
         // if date is invalid date respond with error
-        if (date == 'Invalid Date') return res.json({
+        if (date == 'Invalid Date') return res.status(400).json({
             error: 'date is not a valid date. Suggested format is yyyy-mm-dd'
         });
 
         // if duration value is not a number respond with error
-        if (isNaN(duration)) return res.json({
+        if (isNaN(duration)) return res.status(400).json({
             error: 'duration is not a number.'
         });
 
@@ -152,12 +158,12 @@ APP.post('/api/users/:_id/exercises', (req, res) => {
         exercise.save((err) => {
             
             // if problem saving return error
-            if (err) return res.json({
+            if (err) return res.status(500).json({
                 error: 'Could not log exercise.'
             });
 
             // send expected json response
-            return res.json({
+            return res.status(201).json({
                 username: user.username,
                 description: description,
                 duration: duration,
@@ -192,7 +198,7 @@ APP.get('/api/users/:_id/logs', (req, res) => {
         from = new Date(from).toDateString();
 
         // if value can't be parsed to date return error
-        if (from == 'Invalid Date') return res.json({
+        if (from == 'Invalid Date') return res.status(400).json({
             error: "from query value is not a valid date. Suggested format is yyyy-mm-dd"
         })
 
@@ -208,7 +214,7 @@ APP.get('/api/users/:_id/logs', (req, res) => {
         to = new Date(to).toDateString();
 
         // if value can't be parsed to date return error
-        if (to == 'Invalid Date') return res.json({
+        if (to == 'Invalid Date') return res.status(400).json({
             error: "to query value is not a valid date. Suggested format is yyyy-mm-dd"
         })
 
@@ -219,8 +225,12 @@ APP.get('/api/users/:_id/logs', (req, res) => {
 
     USER.findById(userId, (err, user) => {
 
-        if (err) return res.json({
+        if (err) return res.status(500).json({
             error: 'Could not find user'
+        });
+
+        if (user == null) return res.status(404).json({
+            error: 'User not found'
         });
 
         // filter object to find exercises
@@ -240,7 +250,7 @@ APP.get('/api/users/:_id/logs', (req, res) => {
         // get exercises for user based on filter criteria
         EXERCISE.find(filter, (err, exercises) => {
 
-            if (err) return res.json({
+            if (err) return res.status(500).json({
                 error: 'Could not find exercises for user'
             });
 
@@ -263,7 +273,7 @@ APP.get('/api/users/:_id/logs', (req, res) => {
             });
 
             // return expected response.
-            return res.json({
+            return res.status(200).json({
                 username: user.username,
                 count: exercises.length,
                 _id: user._id,
