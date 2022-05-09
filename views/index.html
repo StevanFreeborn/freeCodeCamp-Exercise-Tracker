@@ -38,11 +38,70 @@
 <body>
 
     <div class="container">
+
         <div class="row my-3">
             <div class="col-12 text-center">
                 <h1>Exercise Tracker</h1>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-12">
+                
+                <h2>Documentation</h2>
+                
+                <p>
+                    Welcome to the Exercise Tracker service. This documentation should supply you with all the information you need to start making requests. It is a really simple api service built to complete one of the projects for the <a href="https://www.freecodecamp.org/learn/back-end-development-and-apis/" target="_blank">freeCodeCamp Back End Development and APIs certification</a>.
+                </p>
+
+                <h5>Base Url</h5>
+
+                <div class="card p-3 bg-dark text-light">
+                    https://freecodecampexercisetracker.herokuapp.com
+                </div>
+
+                <h5 class="my-3">Create User Endpoint</h5>
+                
+                <p>
+                    An endpoint that will allow you to pass a username value and create a user which will be returned as a JSON object.
+                </p>
+
+                <div class="card p-3 bg-dark text-light">
+                    /api/users
+                </div>
+
+                <h6 class="my-3">Example Request:</h6>
+
+                <div class="card p-3 bg-dark text-light">
+
+                    POST https://freecodecampexercisetracker.herokuapp.com/api/users
+                    <br>
+                    <br>
+                    Content-Type:
+                    <br>
+                    application/x-www-form-urlencoded
+                    <br>
+                    <br>
+                    username:
+                    <br>
+                    The desired username for the user.
+
+                </div>
+
+                <h6 class="my-3">Example Response:</h6>
+
+                <div class="card p-3 bg-dark text-light">
+                    {
+                        <br>&emsp;"username": "stevan.freeborn",
+                        <br>&emsp;"_id": "6275425ad2fe0db53499fb59",
+                        <br>&emsp;"__v": 0,
+                        <br>
+                    }
+                </div>
+
+            </div>
+        </div>
+
     </div>
     
 </body>
