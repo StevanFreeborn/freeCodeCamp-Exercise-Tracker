@@ -17,6 +17,8 @@ APP.use(EXPRESS.static('public'));
 // middleware for parsing form body
 APP.use(BODYPARSER.urlencoded({extended: false}));
 
+MONGOOSE.set('strictQuery', false);
+
 // connect to mongodb
 MONGOOSE.connect(
     process.env.MONGO_URI,
